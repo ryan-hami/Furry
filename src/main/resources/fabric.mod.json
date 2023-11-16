@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "furry",
+	"version": "${version}",
+	"name": "Furry",
+	"description": "Makes entities furry?",
+	"authors": [
+		"ryan"
+	],
+	"contact": {
+		"sources": "https://github.com/ryan-hami/Furry"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/furry/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": [
+			"ryan.furry.Furry"
+		]
+	},
+	"mixins": [
+		"furry.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.14.24",
+		"minecraft": "~1.20.2",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
+}

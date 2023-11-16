@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "package": "ryan.furry.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "EntityRendererMixin",
+    "EntityRendererMixin$IDilationMixin",
+    "EntityRendererMixin$IModelCuboidDataMixin",
+    "EntityRendererMixin$IModelPartDataMixin",
+    "EntityRendererMixin$IModelTransformMixin",
+    "EntityRendererMixin$ITextureDimensionsMixin",
+    "EntityRendererMixin$ITexturedModelDataMixin"
+  ]
+}
