@@ -8,13 +8,6 @@
     "defaultRequire": 1
   },
   "client": [
-    "EntityRendererMixin",
-    "EntityRendererMixin$IDilationMixin",
-    "EntityRendererMixin$IModelCuboidDataMixin",
-    "EntityRendererMixin$IModelPartDataMixin",
-    "EntityRendererMixin$IModelTransformMixin",
-    "EntityRendererMixin$ITextureDimensionsMixin",
-    "EntityRendererMixin$ITexturedModelDataMixin",
     "ModelPartMixin",
     "ModelPartMixin$CuboidAccessor"
   ]

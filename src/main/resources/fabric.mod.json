@@ -3,7 +3,7 @@
     "id": "furry",
     "version": "${version}",
     "name": "Furry",
-    "description": "Makes entities furry?",
+    "description": "Makes entities furry.",
     "authors": [
         "ryan"
     ],
