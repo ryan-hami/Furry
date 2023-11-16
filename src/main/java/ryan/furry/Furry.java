@@ -9,7 +9,7 @@ public class Furry implements ModInitializer {
     public void onInitialize() {
     }
 
-    public static void dice(float[][] vrts, Vector3f transNorm, VertexConsumer vertexConsumer, int light, int overlay,
+    public static void dice(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light, int overlay,
                             float red, float green, float blue, float alpha) {
 
         // TODO: animate scalar wrt time or ticks
@@ -18,19 +18,12 @@ public class Furry implements ModInitializer {
         Vector3f sc = new Vector3f(transNorm).mul(1 / 32f);
         Vector3f sd = new Vector3f(transNorm).mul(1 / 48f);
 
-        float[] sums = new float[5];
-        for (int i = 0; i < 4; ++i) {
-            for (int j = 0; j < 5; ++j) {
-                sums[j] += vrts[i][j];
-            }
-        }
+        XYZUV vx0 = verticies[0];
+        XYZUV vx1 = verticies[1];
+        XYZUV vx2 = verticies[2];
+        XYZUV vx3 = verticies[3];
 
-        XYZUV vx0 = new XYZUV(vrts[0]);
-        XYZUV vx1 = new XYZUV(vrts[1]);
-        XYZUV vx2 = new XYZUV(vrts[2]);
-        XYZUV vx3 = new XYZUV(vrts[3]);
-
-        XYZUV mid = new XYZUV(sums).scale(1 / 4f);
+        XYZUV mid = vx0.add(vx1).add(vx2).add(vx3).scale(1 / 4f);
 
         XYZUV p12 = vx0.add(vx1).scale(1 / 2f);
         XYZUV p14 = vx0.add(vx3).scale(1 / 2f);
