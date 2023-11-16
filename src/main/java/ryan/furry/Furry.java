@@ -36,6 +36,17 @@ public class Furry implements ModInitializer {
         return null;
     }
 
+    public static int compareXYZUV(float[] a1, float[] a2) {
+        int result = Float.compare(a1[0], a2[0]);
+        if (result == 0) result = Float.compare(a1[1], a2[1]);
+        return result == 0 ? Float.compare(a1[2], a2[2]) : result;
+    }
+
+    public static List<float[]> sort(List<float[]> arrs) {
+        arrs.sort(Furry::compareXYZUV);
+        return Arrays.asList(arrs.get(0), arrs.get(1), arrs.get(3), arrs.get(2));
+    }
+
     static {
         LOC_TO_LAYER = new HashMap<>();
         EntityModelLayers.getLayers().forEach(var -> LOC_TO_LAYER.put(var.getId().getPath() + var.getName(), var));
