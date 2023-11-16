@@ -5,26 +5,13 @@ import net.minecraft.client.render.VertexConsumer;
 import org.joml.Vector3f;
 
 public class Furry implements ModInitializer {
-    private static final float minScalar = 1 / 32f;
-    private static final float maxScalar = 1 / 8f;
-    private static final float s1;
-    private static final float s2;
-    private static final float s3;
-    private static final float s4;
-
     @Override
     public void onInitialize() {
     }
 
-    /** Splits a quad into quadrants and draws a shell */
-    public static void dice(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light, int overlay,
-                            float red, float green, float blue, float alpha) {
-
-        // TODO: animate scalar wrt time or ticks
-        Vector3f sa = new Vector3f(transNorm).mul(s1);
-        Vector3f sb = new Vector3f(transNorm).mul(s2);
-        Vector3f sc = new Vector3f(transNorm).mul(s3);
-        Vector3f sd = new Vector3f(transNorm).mul(s4);
+    /** Splits a quad into quadrants and draws shells */
+    public static void dice(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light,
+                            int overlay, float red, float green, float blue, float alpha) {
 
         XYZUV vx0 = verticies[0];
         XYZUV vx1 = verticies[1];
@@ -38,72 +25,72 @@ public class Furry implements ModInitializer {
         XYZUV p32 = vx2.add(vx1).scale(1 / 2f);
         XYZUV p34 = vx2.add(vx3).scale(1 / 2f);
 
-        // TODO: abstract for n rows and m columns of shells (or just do 2 minutes of research / rewatch video and make a real implementation)
         Muncher HUNGY = (x, y, z, u, v) -> vertexConsumer
                 .vertex(x, y, z, red, green, blue, alpha, u, v, overlay, light, transNorm.x, transNorm.y, transNorm.z);
 
-        HUNGY.eat(vx0.add(sa));
-        HUNGY.eat(p12.add(sa));
-        HUNGY.eat(mid.add(sa));
-        HUNGY.eat(p14.add(sa));
+        XYZUVConsumer WUFF = (v) -> new Vector3f(transNorm).mul(v.distanceTo(mid));
 
-        HUNGY.eat(vx1.add(sb));
-        HUNGY.eat(p12.add(sb));
-        HUNGY.eat(mid.add(sb));
-        HUNGY.eat(p32.add(sb));
+        Vector3f sx0 = WUFF.ask(vx0);
+        Vector3f s12 = WUFF.ask(p12);
+        Vector3f szo = WUFF.ask(mid);
+        Vector3f s14 = WUFF.ask(p14);
+        Vector3f sx1 = WUFF.ask(vx1);
+        Vector3f s32 = WUFF.ask(p32);
+        Vector3f sx2 = WUFF.ask(vx2);
+        Vector3f s34 = WUFF.ask(p34);
+        Vector3f sx3 = WUFF.ask(p34);
 
-        HUNGY.eat(vx2.add(sc));
-        HUNGY.eat(p34.add(sc));
-        HUNGY.eat(mid.add(sc));
-        HUNGY.eat(p32.add(sc));
+        HUNGY.eat(vx0.add(sx0));
+        HUNGY.eat(p12.add(s12));
+        HUNGY.eat(mid.add(szo));
+        HUNGY.eat(p14.add(s14));
 
-        HUNGY.eat(vx3.add(sd));
-        HUNGY.eat(p34.add(sd));
-        HUNGY.eat(mid.add(sd));
-        HUNGY.eat(p14.add(sd));
+        HUNGY.eat(vx1.add(sx1));
+        HUNGY.eat(p12.add(s12));
+        HUNGY.eat(mid.add(szo));
+        HUNGY.eat(p32.add(s32));
+
+        HUNGY.eat(vx2.add(sx2));
+        HUNGY.eat(p34.add(s34));
+        HUNGY.eat(mid.add(szo));
+        HUNGY.eat(p32.add(s32));
+
+        HUNGY.eat(vx3.add(sx3));
+        HUNGY.eat(p34.add(s34));
+        HUNGY.eat(mid.add(szo));
+        HUNGY.eat(p14.add(s14));
     }
 
     /** Isolates the *top-right(left) corner of the quad */
     public static XYZUV[] brunoise(XYZUV[] corners) {
-        return new XYZUV[]{
-                corners[0],
-                corners[0].add(corners[1]).scale(1 / 2f),
-                corners[0].add(corners[1]).add(corners[2]).add(corners[3]).scale(1 / 4f),
-                corners[0].add(corners[3]).scale(1 / 2f)};
+        return knife(corners, 0, 0, 1, 0, 3);
     }
 
     /** Isolates the *top-left(right) corner of the quad */
     public static XYZUV[] mince(XYZUV[] corners) {
-        return new XYZUV[]{
-                corners[1],
-                corners[0].add(corners[1]).scale(1 / 2f),
-                corners[0].add(corners[1]).add(corners[2]).add(corners[3]).scale(1 / 4f),
-                corners[2].add(corners[1]).scale(1 / 2f)};
+        return knife(corners, 1, 0, 1, 2, 1);
     }
 
     /** Isolates the *bottom-left(right) corner of the quad */
     public static XYZUV[] cube(XYZUV[] corners) {
-        return new XYZUV[]{
-                corners[2],
-                corners[2].add(corners[3]).scale(1 / 2f),
-                corners[0].add(corners[1]).add(corners[2]).add(corners[3]).scale(1 / 4f),
-                corners[2].add(corners[1]).scale(1 / 2f)};
+        return knife(corners, 2, 2, 3, 2, 1);
     }
 
     /** Isolates the *bottom-right(left) corner of the quad */
     public static XYZUV[] batonnet(XYZUV[] corners) {
-        return new XYZUV[]{
-                corners[3],
-                corners[2].add(corners[3]).scale(1 / 2f),
-                corners[0].add(corners[1]).add(corners[2]).add(corners[3]).scale(1 / 4f),
-                corners[0].add(corners[3]).scale(1 / 2f)};
+        return knife(corners, 3, 2, 3, 0, 3);
     }
 
-    static {
-        s1 = (float) ((maxScalar - minScalar) * Math.random() + minScalar);
-        s2 = (float) ((maxScalar - minScalar) * Math.random() + minScalar);
-        s3 = (float) ((maxScalar - minScalar) * Math.random() + minScalar);
-        s4 = (float) ((maxScalar - minScalar) * Math.random() + minScalar);
+    public static XYZUV[] knife(XYZUV[] corners, int i10, int i20, int i21, int i40, int i41) {
+        return new XYZUV[]{
+                corners[i10],
+                corners[i20].add(corners[i21]).scale(1 / 2f),
+                corners[0].add(corners[1]).add(corners[2]).add(corners[3]).scale(1 / 4f),
+                corners[i40].add(corners[i41]).scale(1 / 2f)};
+    }
+
+    public static XYZUV[][] julienne(XYZUV[] corners) {
+        return new XYZUV[][]{brunoise(corners), mince(corners), cube(corners), batonnet(corners)};
     }
 
     public static class XYZUV {
@@ -124,6 +111,13 @@ public class Furry implements ModInitializer {
         public XYZUV add(XYZUV vec) {
             return new XYZUV(x + vec.x, y + vec.y, z + vec.z, u + vec.u, v + vec.v);
         }
+
+        public float distanceTo(XYZUV target) {
+            float dx = target.x - x;
+            float dy = target.y - y;
+            float dz = target.z - z;
+            return (float) Math.sqrt(dx * dx + dy * dy + dz * dz) * 4 / 3;
+        }
     }
 
     public interface Muncher {
@@ -133,4 +127,6 @@ public class Furry implements ModInitializer {
             eat(vec.x, vec.y, vec.z, vec.u, vec.v);
         }
     }
+
+    interface XYZUVConsumer { Vector3f ask(XYZUV v); }
 }
