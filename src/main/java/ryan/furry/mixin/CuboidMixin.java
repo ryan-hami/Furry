@@ -23,7 +23,7 @@ public class CuboidMixin {
     public void renderCuboid(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
         Matrix4f position = entry.getPositionMatrix();
         Matrix3f normal = entry.getNormalMatrix();
-        for (ModelPart.Quad quad : this.sides) {
+        for (ModelPart.Quad quad : sides) {
             Vector3f transNorm = normal.transform(new Vector3f(quad.direction));
             XYZUV[] vrts = new XYZUV[4];
             for (int index = 0; index < quad.vertices.length; ++index) {

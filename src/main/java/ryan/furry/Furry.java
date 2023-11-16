@@ -5,18 +5,26 @@ import net.minecraft.client.render.VertexConsumer;
 import org.joml.Vector3f;
 
 public class Furry implements ModInitializer {
+    private static final float minScalar = 1 / 32f;
+    private static final float maxScalar = 1 / 8f;
+    private static final float s1;
+    private static final float s2;
+    private static final float s3;
+    private static final float s4;
+
     @Override
     public void onInitialize() {
     }
 
+    /** Splits a quad into quadrants and draws a shell */
     public static void dice(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light, int overlay,
                             float red, float green, float blue, float alpha) {
 
         // TODO: animate scalar wrt time or ticks
-        Vector3f sa = new Vector3f(transNorm).mul(1 / 16f);
-        Vector3f sb = new Vector3f(transNorm).mul(1 / 12f);
-        Vector3f sc = new Vector3f(transNorm).mul(1 / 32f);
-        Vector3f sd = new Vector3f(transNorm).mul(1 / 48f);
+        Vector3f sa = new Vector3f(transNorm).mul(s1);
+        Vector3f sb = new Vector3f(transNorm).mul(s2);
+        Vector3f sc = new Vector3f(transNorm).mul(s3);
+        Vector3f sd = new Vector3f(transNorm).mul(s4);
 
         XYZUV vx0 = verticies[0];
         XYZUV vx1 = verticies[1];
@@ -55,15 +63,54 @@ public class Furry implements ModInitializer {
         HUNGY.eat(p14.add(sd));
     }
 
+    /** Isolates the *top-right(left) corner of the quad */
+    public static XYZUV[] brunoise(XYZUV[] corners) {
+        return new XYZUV[]{
+                corners[0],
+                corners[0].add(corners[1]).scale(1 / 2f),
+                corners[0].add(corners[1]).add(corners[2]).add(corners[3]).scale(1 / 4f),
+                corners[0].add(corners[3]).scale(1 / 2f)};
+    }
+
+    /** Isolates the *top-left(right) corner of the quad */
+    public static XYZUV[] mince(XYZUV[] corners) {
+        return new XYZUV[]{
+                corners[1],
+                corners[0].add(corners[1]).scale(1 / 2f),
+                corners[0].add(corners[1]).add(corners[2]).add(corners[3]).scale(1 / 4f),
+                corners[2].add(corners[1]).scale(1 / 2f)};
+    }
+
+    /** Isolates the *bottom-left(right) corner of the quad */
+    public static XYZUV[] cube(XYZUV[] corners) {
+        return new XYZUV[]{
+                corners[2],
+                corners[2].add(corners[3]).scale(1 / 2f),
+                corners[0].add(corners[1]).add(corners[2]).add(corners[3]).scale(1 / 4f),
+                corners[2].add(corners[1]).scale(1 / 2f)};
+    }
+
+    /** Isolates the *bottom-right(left) corner of the quad */
+    public static XYZUV[] batonnet(XYZUV[] corners) {
+        return new XYZUV[]{
+                corners[3],
+                corners[2].add(corners[3]).scale(1 / 2f),
+                corners[0].add(corners[1]).add(corners[2]).add(corners[3]).scale(1 / 4f),
+                corners[0].add(corners[3]).scale(1 / 2f)};
+    }
+
+    static {
+        s1 = (float) ((maxScalar - minScalar) * Math.random() + minScalar);
+        s2 = (float) ((maxScalar - minScalar) * Math.random() + minScalar);
+        s3 = (float) ((maxScalar - minScalar) * Math.random() + minScalar);
+        s4 = (float) ((maxScalar - minScalar) * Math.random() + minScalar);
+    }
+
     public static class XYZUV {
         public float x, y, z, u, v;
 
         public XYZUV(float x, float y, float z, float u, float v) {
             this.x = x; this.y = y; this.z = z; this.u = u; this.v = v;
-        }
-
-        public XYZUV(float[] f) {
-            this.x = f[0]; this.y = f[1]; this.z = f[2]; this.u = f[3]; this.v = f[4];
         }
 
         public XYZUV scale(float f) {
