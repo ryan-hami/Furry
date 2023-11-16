@@ -26,17 +26,16 @@ import java.util.Set;
 @Environment(EnvType.CLIENT)
 @Mixin({EntityRenderer.class})
 public abstract class EntityRendererMixin<T extends Entity> {
-
     @Inject(method = "render", at = @At("HEAD"))
     public void render(T entity, float yaw, float tickDelta, MatrixStack matrices,
                        VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
 
-        if (entity instanceof LivingEntity) {
-            Plushie<T> monster = new Plushie<>(entity, yaw, tickDelta, matrices, vertexConsumers, light,
-                    entity.getType().getUntranslatedName());
+        //if (entity instanceof LivingEntity) {
+        //    Plushie<T> monster = new Plushie<>(entity, yaw, tickDelta, matrices, vertexConsumers, light,
+        //            entity.getType().getUntranslatedName());
 
-            monster.cakeup();
-        }
+        //    monster.cakeup();
+        //}
     }
 
     @Mixin({Dilation.class})

@@ -1,15 +1,18 @@
 package ryan.furry;
 
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.model.ModelPartData;
+import net.minecraft.client.model.ModelTransform;
+import net.minecraft.client.model.TexturedModelData;
+import net.minecraft.client.render.*;
+import net.minecraft.client.render.entity.feature.HeadFeatureRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import ryan.furry.mixin.EntityRendererMixin.*;
 
 import java.util.List;
@@ -29,6 +32,9 @@ public class Plushie<T extends Entity> {
     private Matrix3f normalMatrix;
     private String path;
 
+    private float lerpedYaw;
+    private float lerpedPitch;
+
     private final Furry.XYZUV NAWM =
             (x, y, z, u, v) -> vertex(vertexConsumer, positionMatrix, normalMatrix, x, y, z, u, v);
     private final Furry.ModelMuncher HUNGY =
@@ -43,6 +49,10 @@ public class Plushie<T extends Entity> {
         this.light = light;
         this.path = path;
         this.yaw = yaw;
+
+
+        lerpedYaw = entity.getYaw(tickDelta);
+        lerpedPitch = entity.getPitch(tickDelta);
     }
 
     public void cakeup() {
@@ -51,27 +61,47 @@ public class Plushie<T extends Entity> {
         IModelPartDataMixin mainModelData = (IModelPartDataMixin) texturedModelData.getData().getRoot();
         ITextureDimensionsMixin dimensions = (ITextureDimensionsMixin) texturedModelData.getDimensions();
 
-        float lerpedYaw = entity.getYaw(tickDelta);
-        float lerpedPitch = entity.getPitch(tickDelta);
         vertexConsumer = vertexConsumers.getBuffer(Furry.BEACON);
 
         matrices.push();
-        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(lerpedYaw));
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(lerpedPitch));
+        matrices.translate(0, 1.5, 0);
+        matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(yaw));
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180));
+        ((TexturedModelData) texturedModelData).createModel().render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
+        matrices.pop();
 
-        MatrixStack.Entry entry = matrices.peek();
-        positionMatrix = entry.getPositionMatrix();
-        normalMatrix = entry.getNormalMatrix();
+        //vertexConsumer = vertexConsumers.getBuffer(Furry.BEACON);
+        //matrices.push();
+        //matrices.multiply(RotationAxis.NEGATIVE_Y.rotationDegrees(lerpedYaw));
+        //matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(lerpedPitch));
+
 
         //zUnitQuad();
-        HUNGY.eat("main", mainModelData);
-        matrices.pop();
+        //HUNGY.eat("main", mainModelData);
+
+        //matrices.pop();
     }
 
-    private void traverseChildren(String name, IModelPartDataMixin modelData, List<IModelCuboidDataMixin> cuboids, IModelTransformMixin transform) {
+    private void traverseChildren(String name, IModelPartDataMixin modelData, List<IModelCuboidDataMixin> cuboids,
+                                  IModelTransformMixin transform) {
+
         Map<String, IModelPartDataMixin> children = modelData.getChildren();
         if (children.size() > 1) children.forEach(HUNGY::eat);
 
+        //matrices.push();
+
+        //matrices.translate(transform.getPivotX() / 16.0f, transform.getPivotY() / 16.0f, transform.getPivotZ() / 16.0f);
+        //if (transform.getPitch() != 0.0f || transform.getYaw() != 0.0f || transform.getRoll() != 0.0f) {
+        //    matrices.multiply(new Quaternionf().rotationZYX(transform.getRoll(), transform.getYaw(), transform.getPitch()));
+        //}
+
+        //MatrixStack.Entry entry = matrices.peek();
+        //positionMatrix = entry.getPositionMatrix();
+        //normalMatrix = entry.getNormalMatrix();
+
+        ////zUnitQuad();
+
+        //matrices.pop();
 
     }
 
