@@ -9,7 +9,7 @@ Use the command `/furryCycle` to change between the different modes.
 
 Use the commands `/furry_shell_<setting> <num>` to customize the shell texture.
 
-# Demonstration Video (outdated)
+# Demonstration Video
 https://youtu.be/UstU1shivFU
 
 # Requirements
