@@ -3,6 +3,12 @@ Acerola (computer graphics guy) is hosting an event where audience members imple
 
 This mod hopes to make entities covered in shells and thus appear deceptively fluffy and furry.
 
+# Usage
+
+Use the command `/furryCycle` to change between the different modes.
+
+Use the commands `/furry_shell_<setting> <num>` to customize the shell texture.
+
 ### Demonstration Video (outdated)
 https://youtu.be/o7WaOPQ6ADk
 
@@ -22,14 +28,12 @@ This means it will probably be incompatible with a lot of other mods like sodium
 
 ![guardians](pics/guardians.png)
 
-![black_zombie](pics/black_zombie.png)
+![spike_sheep](pics/spike_sheep.png)
 
 ![diced_allay](pics/diced_allay.png)
+
+![furry_zombie](pics/furry_zombie.png)
 
 ![spike_dragon](pics/spike_dragon.png)
 
 ![shulker](pics/shulker.png)
-
-![gray_zombie](pics/gray_zombie.png)
-
-![spike_sheep](pics/spike_sheep.png)

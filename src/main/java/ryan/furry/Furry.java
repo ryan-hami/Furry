@@ -1,36 +1,51 @@
 package ryan.furry;
 
-import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.render.VertexConsumer;
 import org.joml.Vector3f;
 
 public class Furry implements ModInitializer {
     public static int furryState = 0;
 
-    // number of rows of shells per quad
-    private static final int n = 10;
-
     // number of columns of shells per quad
-    private static final int m = 2;
+    private static int n = 10;
+
+    // number of rows of shells per quad
+    private static int m = 2;
 
     // number of layers
-    private static final int l = 6;
+    private static int l = 6;
 
     // distance between layers
-    private static final double h = 1 / 50.0;
+    private static double h = 1 / 50.0;
 
     @Override
     public void onInitialize() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("cycleFurry").executes(this::cycle)));
-    }
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("cycleFurry").executes(context -> {
+            furryState = (furryState + 1) % 3;
+            return 1;
+        })));
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("furry_shell_columns").then(ClientCommandManager.argument("columns", IntegerArgumentType.integer(0)).executes(context -> {
+            n = context.getArgument("columns", int.class);
+            return 1;
+        }))));
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("furry_shell_rows").then(ClientCommandManager.argument("rows", IntegerArgumentType.integer(0)).executes(context -> {
+            m = context.getArgument("rows", int.class);
+            return 1;
+        }))));
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("furry_shell_layers").then(ClientCommandManager.argument("layers", IntegerArgumentType.integer(0)).executes(context -> {
+            l = context.getArgument("layers", int.class);
+            return 1;
+        }))));
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("furry_shell_distance_between_layers").then(ClientCommandManager.argument("height", DoubleArgumentType.doubleArg(0)).executes(context -> {
+            h = context.getArgument("height", double.class);
+            return 1;
+        }))));
 
-    private int cycle(CommandContext<FabricClientCommandSource> context) {
-        furryState = (furryState + 1) % 3;
-        return 1;
     }
 
     public static void furry(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light,
