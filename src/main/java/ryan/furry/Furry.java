@@ -1,12 +1,17 @@
 package ryan.furry;
 
+import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.render.VertexConsumer;
 import org.joml.Vector3f;
 
-@SuppressWarnings("unused")
 public class Furry implements ModInitializer {
-    // sqrt of rows of shells per quad
+    public static boolean furryState = true;
+
+    // number of rows of shells per quad
     private static final int n = 10;
 
     // number of columns of shells per quad
@@ -20,6 +25,12 @@ public class Furry implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ClientCommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("toggleFurry").executes(this::toggle))));
+    }
+
+    private int toggle(CommandContext<FabricClientCommandSource> context) {
+        furryState = !furryState;
+        return 1;
     }
 
     /** actual implementation of shell texturing (the whole point of the challenge) */

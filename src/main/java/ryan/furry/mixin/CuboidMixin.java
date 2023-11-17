@@ -33,7 +33,9 @@ public class CuboidMixin {
                 vrts[index] = new XYZUV(rotVert.x, rotVert.y, rotVert.z, vertex.u, vertex.v);
             }
 
-            Furry.shell(vrts, transNorm, vertexConsumer, light, overlay, red, green, blue, alpha);
+            if (Furry.furryState) Furry.shell(vrts, transNorm, vertexConsumer, light, overlay, red, green, blue, alpha);
+            else for (XYZUV[] v1 : Furry.julienne(vrts)) for (XYZUV[] v2 : Furry.julienne(v1))
+                Furry.dice(v2, transNorm, vertexConsumer, light, overlay, red, green, blue, alpha);
         }
     }
 }

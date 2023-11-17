@@ -6,6 +6,9 @@ This mod hopes to make entities covered in shells and thus appear deceptively fl
 ### Demonstration Video (outdated)
 https://youtu.be/o7WaOPQ6ADk
 
+This video shows the quadrant cruncher implementation and not a shell texture.
+Use the command `/toggleFurry` in-game to switch between the two modes.
+
 # Requirements
 * minecraft fabric 1.20.2
 * fabric api version >=0.14.23
@@ -15,9 +18,13 @@ This means it will probably be incompatible with a lot of other mods like sodium
 
 
 # Pics
+![diced_dragon](pics/diced_dragon.png)
+
 ![guardians](pics/guardians.png)
 
 ![black_zombie](pics/black_zombie.png)
+
+![diced_allay](pics/diced_allay.png)
 
 ![shulker](pics/shulker.png)
 
