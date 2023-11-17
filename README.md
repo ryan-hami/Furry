@@ -9,16 +9,14 @@ Use the command `/furryCycle` to change between the different modes.
 
 Use the commands `/furry_shell_<setting> <num>` to customize the shell texture.
 
-### Demonstration Video (outdated)
-https://youtu.be/o7WaOPQ6ADk
-
-This video shows the quadrant cruncher implementation and not a shell texture.
+# Demonstration Video (outdated)
+https://youtu.be/UstU1shivFU
 
 # Requirements
 * minecraft fabric 1.20.2
 * fabric api version >=0.14.23
 
-### Note: this mod overwrites the `ModelPart.Cuboid` class
+## Note: this mod overwrites the `ModelPart.Cuboid` class
 This means it will probably be incompatible with a lot of other mods like sodium and such.
 
 
