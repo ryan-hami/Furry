@@ -9,7 +9,7 @@ import net.minecraft.client.render.VertexConsumer;
 import org.joml.Vector3f;
 
 public class Furry implements ModInitializer {
-    public static boolean furryState = true;
+    public static int furryState = 0;
 
     // number of rows of shells per quad
     private static final int n = 10;
@@ -25,13 +25,63 @@ public class Furry implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("toggleFurry").executes(this::toggle)));
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("cycleFurry").executes(this::cycle)));
     }
 
-    private int toggle(CommandContext<FabricClientCommandSource> context) {
-        furryState = !furryState;
+    private int cycle(CommandContext<FabricClientCommandSource> context) {
+        furryState = (furryState + 1) % 3;
         return 1;
     }
+
+    public static void furry(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light,
+                             int overlay, float red, float green, float blue, float alpha) {
+
+        switch (furryState) {
+            case 0 -> shell(verticies, transNorm, vertexConsumer, light, overlay, red, green, blue, alpha);
+            case 1 -> {
+                for (XYZUV[] v1 : Furry.julienne(verticies)) for (XYZUV[] v2 : Furry.julienne(v1))
+                    dice(v2, transNorm, vertexConsumer, light, overlay, red, green, blue, alpha);
+            }
+            case 2 -> spike(verticies, transNorm, vertexConsumer, light, overlay, red, green, blue, alpha);
+        }
+    }
+
+
+    /** makes a spike */
+    public static void spike(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light,
+                             int overlay, float red, float green, float blue, float alpha) {
+
+        Muncher HUNGY = (x, y, z, u, v) -> vertexConsumer
+                .vertex(x, y, z, red, green, blue, alpha, u, v, overlay, light, transNorm.x, transNorm.y, transNorm.z);
+
+        XYZUV a = verticies[0];
+        XYZUV b = verticies[1];
+        XYZUV c = verticies[2];
+        XYZUV d = verticies[3];
+
+        XYZUV m = a.add(b).add(c).add(d).scale(0.25f).add(new Vector3f(transNorm).mul(0.25f));
+
+        HUNGY.eat(a);
+        HUNGY.eat(b);
+        HUNGY.eat(m);
+        HUNGY.eat(a);
+
+        HUNGY.eat(b);
+        HUNGY.eat(c);
+        HUNGY.eat(m);
+        HUNGY.eat(b);
+
+        HUNGY.eat(c);
+        HUNGY.eat(d);
+        HUNGY.eat(m);
+        HUNGY.eat(c);
+
+        HUNGY.eat(d);
+        HUNGY.eat(a);
+        HUNGY.eat(m);
+        HUNGY.eat(d);
+    }
+
 
     /** actual implementation of shell texturing (the whole point of the challenge) */
     public static void shell(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light,
@@ -96,6 +146,7 @@ public class Furry implements ModInitializer {
     /** Splits a quad into quadrants and draws shells */
     public static void dice(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light,
                             int overlay, float red, float green, float blue, float alpha) {
+
         Muncher HUNGY = (x, y, z, u, v) -> vertexConsumer
                 .vertex(x, y, z, red, green, blue, alpha, u, v, overlay, light, transNorm.x, transNorm.y, transNorm.z);
 
@@ -111,7 +162,7 @@ public class Furry implements ModInitializer {
         XYZUV p32 = vx2.add(vx1).scale(1 / 2f);
         XYZUV p34 = vx2.add(vx3).scale(1 / 2f);
 
-        XYZUVConsumer WUFF = (v) -> new Vector3f(transNorm).mul(v.distanceTo(mid));
+        XYZUVConsumer WUFF = (v) -> new Vector3f(transNorm).mul(v.distanceTo(mid) * 4 / 3);
 
         Vector3f sx0 = WUFF.ask(vx0);
         Vector3f s12 = WUFF.ask(p12);
@@ -203,7 +254,7 @@ public class Furry implements ModInitializer {
             float dx = v.x - x;
             float dy = v.y - y;
             float dz = v.z - z;
-            return (float) Math.sqrt(dx * dx + dy * dy + dz * dz) * 4 / 3;
+            return (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
         }
     }
 
