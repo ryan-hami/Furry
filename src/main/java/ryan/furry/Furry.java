@@ -26,7 +26,7 @@ public class Furry implements ModInitializer {
     @Override
     public void onInitialize() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(ClientCommandManager.literal("cycleFurry").executes(context -> {
+            dispatcher.register(ClientCommandManager.literal("furryCycle").executes(context -> {
                 furryState = (furryState + 1) % 3;
                 return 1;
             }));
@@ -74,12 +74,12 @@ public class Furry implements ModInitializer {
         Muncher HUNGY = (x, y, z, u, v) -> vertexConsumer
                 .vertex(x, y, z, red, green, blue, alpha, u, v, overlay, light, transNorm.x, transNorm.y, transNorm.z);
 
+        XYZUV m = XYZUV.centerOf(verticies).add(new Vector3f(transNorm).mul(0.25f));
+
         XYZUV a = verticies[0];
         XYZUV b = verticies[1];
         XYZUV c = verticies[2];
         XYZUV d = verticies[3];
-
-        XYZUV m = a.add(b).add(c).add(d).mul(0.25f).add(new Vector3f(transNorm).mul(0.25f));
 
         HUNGY.eat(a);
         HUNGY.eat(b);
@@ -142,7 +142,7 @@ public class Furry implements ModInitializer {
                 XYZUV v10 = x01.add(dx11x01.mul(t10));
                 XYZUV v11 = x01.add(dx11x01.mul(t11));
 
-                XYZUV m = v00.add(v01).add(v10).add(v11).mul((float) (1 / 4.0));
+                XYZUV m = XYZUV.centerOf(v00, v01, v10, v11);
 
                 for (int k = 0; k < l; ++k) {
                     Vector3f o = new Vector3f(transNorm).mul((float) (h * (k + 1)));
@@ -170,12 +170,12 @@ public class Furry implements ModInitializer {
         Muncher HUNGY = (x, y, z, u, v) -> vertexConsumer
                 .vertex(x, y, z, red, green, blue, alpha, u, v, overlay, light, transNorm.x, transNorm.y, transNorm.z);
 
+        XYZUV mid = XYZUV.centerOf(verticies);
+
         XYZUV vx0 = verticies[0];
         XYZUV vx1 = verticies[1];
         XYZUV vx2 = verticies[2];
         XYZUV vx3 = verticies[3];
-
-        XYZUV mid = vx0.add(vx1).add(vx2).add(vx3).mul(1 / 4f);
 
         XYZUV p12 = vx0.add(vx1).mul(1 / 2f);
         XYZUV p14 = vx0.add(vx3).mul(1 / 2f);
@@ -239,7 +239,7 @@ public class Furry implements ModInitializer {
         return new XYZUV[]{
                 corners[i10],
                 corners[i20].add(corners[i21]).mul(1 / 2f),
-                corners[0].add(corners[1]).add(corners[2]).add(corners[3]).mul(1 / 4f),
+                XYZUV.centerOf(corners),
                 corners[i40].add(corners[i41]).mul(1 / 2f)};
     }
 
@@ -249,6 +249,8 @@ public class Furry implements ModInitializer {
 
     public static class XYZUV {
         public float x, y, z, u, v;
+
+        public XYZUV() {}
 
         public XYZUV(float x, float y, float z, float u, float v) {
             this.x = x; this.y = y; this.z = z; this.u = u; this.v = v;
@@ -279,6 +281,12 @@ public class Furry implements ModInitializer {
             float dy = v.y - y;
             float dz = v.z - z;
             return (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+        }
+
+        public static XYZUV centerOf(XYZUV... verticies) {
+            XYZUV center = new XYZUV();
+            for (XYZUV vertex: verticies) center = center.add(vertex);
+            return center.mul(1.0 / verticies.length);
         }
     }
 
