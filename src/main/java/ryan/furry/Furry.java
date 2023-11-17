@@ -5,10 +5,15 @@ import net.minecraft.client.render.VertexConsumer;
 import org.joml.Vector3f;
 
 public class Furry implements ModInitializer {
-    // sqrt of segments num per quad
+    // sqrt of rows of shells per quad
     private static final int n = 10;
+
+    // number of columns of shells per quad
+    private static final int m = 2;
+
     // number of layers
     private static final int l = 6;
+
     // distance between layers
     private static final double h = 1 / 50.0;
 
@@ -32,10 +37,11 @@ public class Furry implements ModInitializer {
         XYZUV ddc = d.sub(c);
 
         // https://www.desmos.com/3d/17f0200211
-        double dt = 1.0 / n;
+        double dn = 1.0 / n;
+        double dm = 1.0 / m;
         for (int i = 0; i < n; ++i) {
-            double t00 = i * dt;
-            double t01 = t00 + dt;
+            double t00 = i * dn;
+            double t01 = t00 + dn;
 
             XYZUV x00 = a.add(dba.scale((float) t00));
             XYZUV x01 = a.add(dba.scale((float) t01));
@@ -45,9 +51,9 @@ public class Furry implements ModInitializer {
             XYZUV dx10x00 = x10.sub(x00);
             XYZUV dx11x01 = x11.sub(x01);
 
-            for (int j = 0; j < n; ++j) {
-                double t10 = (double) j / n;
-                double t11 = t10 + dt;
+            for (int j = 0; j < m; ++j) {
+                double t10 = (double) j / m;
+                double t11 = t10 + dm;
 
                 XYZUV v00 = x00.add(dx10x00.scale((float) t10));
                 XYZUV v01 = x00.add(dx10x00.scale((float) t11));
