@@ -13,7 +13,6 @@ Use the commands `/furry_shell_<setting> <num>` to customize the shell texture.
 https://youtu.be/o7WaOPQ6ADk
 
 This video shows the quadrant cruncher implementation and not a shell texture.
-Use the command `/cycleFurry` in-game to switch between the various modes.
 
 # Requirements
 * minecraft fabric 1.20.2
