@@ -4,6 +4,7 @@ import net.fabricmc.api.ModInitializer;
 import net.minecraft.client.render.VertexConsumer;
 import org.joml.Vector3f;
 
+@SuppressWarnings("unused")
 public class Furry implements ModInitializer {
     // sqrt of rows of shells per quad
     private static final int n = 10;

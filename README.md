@@ -3,7 +3,7 @@ Acerola (computer graphics guy) is hosting an event where audience members imple
 
 This mod hopes to make entities covered in shells and thus appear deceptively fluffy and furry.
 
-## Demonstration Video
+### Demonstration Video (outdated)
 https://youtu.be/o7WaOPQ6ADk
 
 # Requirements
@@ -12,3 +12,13 @@ https://youtu.be/o7WaOPQ6ADk
 
 ### Note: this mod overwrites the `ModelPart.Cuboid` class
 This means it will probably be incompatible with a lot of other mods like sodium and such.
+
+
+# Pics
+![guardians](pics/guardians.png)
+
+![black_zombie](pics/black_zombie.png)
+
+![shulker](pics/shulker.png)
+
+![gray_zombie](pics/gray_zombie.png)
