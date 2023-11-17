@@ -5,13 +5,81 @@ import net.minecraft.client.render.VertexConsumer;
 import org.joml.Vector3f;
 
 public class Furry implements ModInitializer {
+    // sqrt of segments num per quad
+    private static final int n = 10;
+    // number of layers
+    private static final int l = 6;
+    // distance between layers
+    private static final double h = 1 / 50.0;
+
     @Override
     public void onInitialize() {
+    }
+
+    /** actual implementation of shell texturing (the whole point of the challenge) */
+    public static void shell(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light,
+                             int overlay, float red, float green, float blue, float alpha) {
+
+        Muncher HUNGY = (x, y, z, u, v) -> vertexConsumer
+                .vertex(x, y, z, red, green, blue, alpha, u, v, overlay, light, transNorm.x, transNorm.y, transNorm.z);
+
+        XYZUV a = verticies[0];
+        XYZUV b = verticies[1];
+        XYZUV d = verticies[2];
+        XYZUV c = verticies[3];
+
+        XYZUV dba = b.sub(a);
+        XYZUV ddc = d.sub(c);
+
+        // https://www.desmos.com/3d/17f0200211
+        double dt = 1.0 / n;
+        for (int i = 0; i < n; ++i) {
+            double t00 = i * dt;
+            double t01 = t00 + dt;
+
+            XYZUV x00 = a.add(dba.scale((float) t00));
+            XYZUV x01 = a.add(dba.scale((float) t01));
+            XYZUV x10 = c.add(ddc.scale((float) t00));
+            XYZUV x11 = c.add(ddc.scale((float) t01));
+
+            XYZUV dx10x00 = x10.sub(x00);
+            XYZUV dx11x01 = x11.sub(x01);
+
+            for (int j = 0; j < n; ++j) {
+                double t10 = (double) j / n;
+                double t11 = t10 + dt;
+
+                XYZUV v00 = x00.add(dx10x00.scale((float) t10));
+                XYZUV v01 = x00.add(dx10x00.scale((float) t11));
+                XYZUV v10 = x01.add(dx11x01.scale((float) t10));
+                XYZUV v11 = x01.add(dx11x01.scale((float) t11));
+
+                XYZUV m = v00.add(v01).add(v10).add(v11).scale((float) (1 / 4.0));
+
+                for (int k = 0; k < l; ++k) {
+                    Vector3f o = new Vector3f(transNorm).mul((float) (h * (k + 1)));
+                    double t = (double) k / l / ((double) l / 2);
+
+                    XYZUV s00 = v00.add(m.sub(v00).scale((float) t));
+                    XYZUV s01 = v01.add(m.sub(v01).scale((float) t));
+                    XYZUV s10 = v10.add(m.sub(v10).scale((float) t));
+                    XYZUV s11 = v11.add(m.sub(v11).scale((float) t));
+
+                    // vertices must be consumed in the order a b d c because of quad
+                    HUNGY.eat(s00.add(o));
+                    HUNGY.eat(s01.add(o));
+                    HUNGY.eat(s11.add(o));
+                    HUNGY.eat(s10.add(o));
+                }
+            }
+        }
     }
 
     /** Splits a quad into quadrants and draws shells */
     public static void dice(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light,
                             int overlay, float red, float green, float blue, float alpha) {
+        Muncher HUNGY = (x, y, z, u, v) -> vertexConsumer
+                .vertex(x, y, z, red, green, blue, alpha, u, v, overlay, light, transNorm.x, transNorm.y, transNorm.z);
 
         XYZUV vx0 = verticies[0];
         XYZUV vx1 = verticies[1];
@@ -24,9 +92,6 @@ public class Furry implements ModInitializer {
         XYZUV p14 = vx0.add(vx3).scale(1 / 2f);
         XYZUV p32 = vx2.add(vx1).scale(1 / 2f);
         XYZUV p34 = vx2.add(vx3).scale(1 / 2f);
-
-        Muncher HUNGY = (x, y, z, u, v) -> vertexConsumer
-                .vertex(x, y, z, red, green, blue, alpha, u, v, overlay, light, transNorm.x, transNorm.y, transNorm.z);
 
         XYZUVConsumer WUFF = (v) -> new Vector3f(transNorm).mul(v.distanceTo(mid));
 
@@ -112,10 +177,14 @@ public class Furry implements ModInitializer {
             return new XYZUV(x + vec.x, y + vec.y, z + vec.z, u + vec.u, v + vec.v);
         }
 
-        public float distanceTo(XYZUV target) {
-            float dx = target.x - x;
-            float dy = target.y - y;
-            float dz = target.z - z;
+        public XYZUV sub(XYZUV vec) {
+            return new XYZUV(x - vec.x, y - vec.y, z - vec.z, u - vec.u, v - vec.v);
+        }
+
+        public float distanceTo(XYZUV v) {
+            float dx = v.x - x;
+            float dy = v.y - y;
+            float dz = v.z - z;
             return (float) Math.sqrt(dx * dx + dy * dy + dz * dz) * 4 / 3;
         }
     }
