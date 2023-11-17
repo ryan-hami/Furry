@@ -25,7 +25,7 @@ public class Furry implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        ClientCommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("toggleFurry").executes(this::toggle))));
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("toggleFurry").executes(this::toggle)));
     }
 
     private int toggle(CommandContext<FabricClientCommandSource> context) {
@@ -48,7 +48,7 @@ public class Furry implements ModInitializer {
         XYZUV dba = b.sub(a);
         XYZUV ddc = d.sub(c);
 
-        // https://www.desmos.com/3d/17f0200211
+        // https://www.desmos.com/3d/efd1f03ccd
         double dn = 1.0 / n;
         double dm = 1.0 / m;
         for (int i = 0; i < n; ++i) {
