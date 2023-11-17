@@ -79,7 +79,7 @@ public class Furry implements ModInitializer {
         XYZUV c = verticies[2];
         XYZUV d = verticies[3];
 
-        XYZUV m = a.add(b).add(c).add(d).scale(0.25f).add(new Vector3f(transNorm).mul(0.25f));
+        XYZUV m = a.add(b).add(c).add(d).mul(0.25f).add(new Vector3f(transNorm).mul(0.25f));
 
         HUNGY.eat(a);
         HUNGY.eat(b);
@@ -112,11 +112,11 @@ public class Furry implements ModInitializer {
 
         XYZUV a = verticies[0];
         XYZUV b = verticies[1];
-        XYZUV d = verticies[2];
-        XYZUV c = verticies[3];
+        XYZUV c = verticies[2];
+        XYZUV d = verticies[3];
 
         XYZUV dba = b.sub(a);
-        XYZUV ddc = d.sub(c);
+        XYZUV dcd = c.sub(d);
 
         // https://www.desmos.com/3d/efd1f03ccd
         double dn = 1.0 / n;
@@ -125,10 +125,10 @@ public class Furry implements ModInitializer {
             double t00 = i * dn;
             double t01 = t00 + dn;
 
-            XYZUV x00 = a.add(dba.scale((float) t00));
-            XYZUV x01 = a.add(dba.scale((float) t01));
-            XYZUV x10 = c.add(ddc.scale((float) t00));
-            XYZUV x11 = c.add(ddc.scale((float) t01));
+            XYZUV x00 = a.add(dba.mul(t00));
+            XYZUV x01 = a.add(dba.mul(t01));
+            XYZUV x10 = d.add(dcd.mul(t00));
+            XYZUV x11 = d.add(dcd.mul(t01));
 
             XYZUV dx10x00 = x10.sub(x00);
             XYZUV dx11x01 = x11.sub(x01);
@@ -137,21 +137,21 @@ public class Furry implements ModInitializer {
                 double t10 = (double) j / m;
                 double t11 = t10 + dm;
 
-                XYZUV v00 = x00.add(dx10x00.scale((float) t10));
-                XYZUV v01 = x00.add(dx10x00.scale((float) t11));
-                XYZUV v10 = x01.add(dx11x01.scale((float) t10));
-                XYZUV v11 = x01.add(dx11x01.scale((float) t11));
+                XYZUV v00 = x00.add(dx10x00.mul(t10));
+                XYZUV v01 = x00.add(dx10x00.mul(t11));
+                XYZUV v10 = x01.add(dx11x01.mul(t10));
+                XYZUV v11 = x01.add(dx11x01.mul(t11));
 
-                XYZUV m = v00.add(v01).add(v10).add(v11).scale((float) (1 / 4.0));
+                XYZUV m = v00.add(v01).add(v10).add(v11).mul((float) (1 / 4.0));
 
                 for (int k = 0; k < l; ++k) {
                     Vector3f o = new Vector3f(transNorm).mul((float) (h * (k + 1)));
                     double t = (double) k / l / ((double) l / 2);
 
-                    XYZUV s00 = v00.add(m.sub(v00).scale((float) t));
-                    XYZUV s01 = v01.add(m.sub(v01).scale((float) t));
-                    XYZUV s10 = v10.add(m.sub(v10).scale((float) t));
-                    XYZUV s11 = v11.add(m.sub(v11).scale((float) t));
+                    XYZUV s00 = v00.add(m.sub(v00).mul(t));
+                    XYZUV s01 = v01.add(m.sub(v01).mul(t));
+                    XYZUV s10 = v10.add(m.sub(v10).mul(t));
+                    XYZUV s11 = v11.add(m.sub(v11).mul(t));
 
                     // vertices must be consumed in the order a b d c because of quad
                     HUNGY.eat(s00.add(o));
@@ -175,18 +175,18 @@ public class Furry implements ModInitializer {
         XYZUV vx2 = verticies[2];
         XYZUV vx3 = verticies[3];
 
-        XYZUV mid = vx0.add(vx1).add(vx2).add(vx3).scale(1 / 4f);
+        XYZUV mid = vx0.add(vx1).add(vx2).add(vx3).mul(1 / 4f);
 
-        XYZUV p12 = vx0.add(vx1).scale(1 / 2f);
-        XYZUV p14 = vx0.add(vx3).scale(1 / 2f);
-        XYZUV p32 = vx2.add(vx1).scale(1 / 2f);
-        XYZUV p34 = vx2.add(vx3).scale(1 / 2f);
+        XYZUV p12 = vx0.add(vx1).mul(1 / 2f);
+        XYZUV p14 = vx0.add(vx3).mul(1 / 2f);
+        XYZUV p32 = vx2.add(vx1).mul(1 / 2f);
+        XYZUV p34 = vx2.add(vx3).mul(1 / 2f);
 
         XYZUVConsumer WUFF = (v) -> new Vector3f(transNorm).mul(v.distanceTo(mid) * 4 / 3);
 
         Vector3f sx0 = WUFF.ask(vx0);
         Vector3f s12 = WUFF.ask(p12);
-        Vector3f szo = WUFF.ask(mid);
+        Vector3f szo = WUFF.ask(mid); // is always zeros
         Vector3f s14 = WUFF.ask(p14);
         Vector3f sx1 = WUFF.ask(vx1);
         Vector3f s32 = WUFF.ask(p32);
@@ -238,9 +238,9 @@ public class Furry implements ModInitializer {
     public static XYZUV[] knife(XYZUV[] corners, int i10, int i20, int i21, int i40, int i41) {
         return new XYZUV[]{
                 corners[i10],
-                corners[i20].add(corners[i21]).scale(1 / 2f),
-                corners[0].add(corners[1]).add(corners[2]).add(corners[3]).scale(1 / 4f),
-                corners[i40].add(corners[i41]).scale(1 / 2f)};
+                corners[i20].add(corners[i21]).mul(1 / 2f),
+                corners[0].add(corners[1]).add(corners[2]).add(corners[3]).mul(1 / 4f),
+                corners[i40].add(corners[i41]).mul(1 / 2f)};
     }
 
     public static XYZUV[][] julienne(XYZUV[] corners) {
@@ -254,7 +254,11 @@ public class Furry implements ModInitializer {
             this.x = x; this.y = y; this.z = z; this.u = u; this.v = v;
         }
 
-        public XYZUV scale(float f) {
+        public XYZUV mul(double d) {
+            return mul((float) d);
+        }
+
+        public XYZUV mul(float f) {
             return new XYZUV(x * f, y * f, z * f, u * f, v * f);
         }
 
