@@ -25,27 +25,32 @@ public class Furry implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("cycleFurry").executes(context -> {
-            furryState = (furryState + 1) % 3;
-            return 1;
-        })));
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("furry_shell_columns").then(ClientCommandManager.argument("columns", IntegerArgumentType.integer(0)).executes(context -> {
-            n = context.getArgument("columns", int.class);
-            return 1;
-        }))));
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("furry_shell_rows").then(ClientCommandManager.argument("rows", IntegerArgumentType.integer(0)).executes(context -> {
-            m = context.getArgument("rows", int.class);
-            return 1;
-        }))));
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("furry_shell_layers").then(ClientCommandManager.argument("layers", IntegerArgumentType.integer(0)).executes(context -> {
-            l = context.getArgument("layers", int.class);
-            return 1;
-        }))));
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("furry_shell_distance_between_layers").then(ClientCommandManager.argument("height", DoubleArgumentType.doubleArg(0)).executes(context -> {
-            h = context.getArgument("height", double.class);
-            return 1;
-        }))));
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+            dispatcher.register(ClientCommandManager.literal("cycleFurry").executes(context -> {
+                furryState = (furryState + 1) % 3;
+                return 1;
+            }));
 
+            dispatcher.register(ClientCommandManager.literal("furry_shell_columns").then(ClientCommandManager.argument("columns", IntegerArgumentType.integer(0)).executes(context -> {
+                n = context.getArgument("columns", int.class);
+                return 1;
+            })));
+
+            dispatcher.register(ClientCommandManager.literal("furry_shell_rows").then(ClientCommandManager.argument("rows", IntegerArgumentType.integer(0)).executes(context -> {
+                m = context.getArgument("rows", int.class);
+                return 1;
+            })));
+
+            dispatcher.register(ClientCommandManager.literal("furry_shell_layers").then(ClientCommandManager.argument("layers", IntegerArgumentType.integer(0)).executes(context -> {
+                l = context.getArgument("layers", int.class);
+                return 1;
+            })));
+
+            dispatcher.register(ClientCommandManager.literal("furry_shell_distance_between_layers").then(ClientCommandManager.argument("height", DoubleArgumentType.doubleArg(0)).executes(context -> {
+                h = context.getArgument("height", double.class);
+                return 1;
+            })));
+        });
     }
 
     public static void furry(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light,
