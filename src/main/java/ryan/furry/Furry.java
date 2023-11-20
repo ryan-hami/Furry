@@ -9,6 +9,8 @@ import net.minecraft.client.render.VertexConsumer;
 import org.joml.Vector3f;
 
 public class Furry implements ModInitializer {
+    private static final double SQRT_LN_10 = Math.sqrt(Math.log(10));
+
     public static int furryState = 0;
 
     // number of columns of shells per quad
@@ -97,6 +99,10 @@ public class Furry implements ModInitializer {
     public static void shell(Muncher HUNGY, XYZUV a, XYZUV b, XYZUV c, XYZUV d, XYZUV normal) {
         // https://www.desmos.com/3d/efd1f03ccd
 
+        XYZUV mid = mid(a, b, c, d);
+
+        double g = SQRT_LN_10 / a.distanceTo(mid);
+
         XYZUV dba = b.sub(a);
         XYZUV dcd = c.sub(d);
 
@@ -130,8 +136,13 @@ public class Furry implements ModInitializer {
                 XYZUV dmv10 = m.sub(v10);
                 XYZUV dmv11 = m.sub(v11);
 
+                double r = m.distanceTo(mid);
+
                 for (int k = 0; k < l; ++k) {
-                    XYZUV o = normal.mul((float) (h * (k + 1)));
+                    double height = (k + 1) * h * Math.exp(-Math.pow(r * g, 2));
+                    XYZUV on = normal.mul(height - h);
+                    XYZUV op = normal.mul(height + h);
+
                     double t = (double) k / l / ((double) l / 2);
 
                     XYZUV s00 = p(v00, dmv00, t);
@@ -140,10 +151,10 @@ public class Furry implements ModInitializer {
                     XYZUV s11 = p(v11, dmv11, t);
 
                     // vertices must be consumed in the order a b d c because of quad
-                    nom(HUNGY, s00, o);
-                    nom(HUNGY, s01, o);
-                    nom(HUNGY, s11, o);
-                    nom(HUNGY, s10, o);
+                    nom(HUNGY, s00, op);
+                    nom(HUNGY, s01, on);
+                    nom(HUNGY, s11, op);
+                    nom(HUNGY, s10, on);
                 }
             }
         }
@@ -271,11 +282,11 @@ public class Furry implements ModInitializer {
             return new XYZUV(x - vec.x, y - vec.y, z - vec.z, u - vec.u, v - vec.v);
         }
 
-        public float distanceTo(XYZUV v) {
+        public double distanceTo(XYZUV v) {
             float dx = v.x - x;
             float dy = v.y - y;
             float dz = v.z - z;
-            return (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+            return Math.sqrt(dx * dx + dy * dy + dz * dz);
         }
     }
 
