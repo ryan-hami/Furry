@@ -56,13 +56,23 @@ public class Furry implements ModInitializer {
     public static void furry(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light,
                              int overlay, float red, float green, float blue, float alpha) {
 
+        Muncher HUNGY = (x, y, z, u, v) -> vertexConsumer
+                .vertex(x, y, z, red, green, blue, alpha, u, v, overlay, light, transNorm.x, transNorm.y, transNorm.z);
+
+        XYZUV normal = new XYZUV(transNorm.x, transNorm.y, transNorm.z, 0, 0);
+
+        XYZUV a = verticies[0];
+        XYZUV b = verticies[1];
+        XYZUV c = verticies[2];
+        XYZUV d = verticies[3];
+
         switch (furryState) {
-            case 0 -> shell(verticies, transNorm, vertexConsumer, light, overlay, red, green, blue, alpha);
+            case 0 -> shell(HUNGY, a, b, c, d, normal);
             case 1 -> {
                 for (XYZUV[] v1 : Furry.julienne(verticies)) for (XYZUV[] v2 : Furry.julienne(v1))
-                    dice(v2, transNorm, vertexConsumer, light, overlay, red, green, blue, alpha);
+                    dice(HUNGY, v2[0], v2[1], v2[2], v2[3], normal);
             }
-            case 2 -> spike(verticies, transNorm, vertexConsumer, light, overlay, red, green, blue, alpha);
+            case 2 -> spike(HUNGY, a, b, c, d, normal);
         }
     }
 
@@ -84,23 +94,12 @@ public class Furry implements ModInitializer {
     }
 
     /** actual implementation of shell texturing (the whole point of the challenge) */
-    public static void shell(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light,
-                             int overlay, float red, float green, float blue, float alpha) {
-
-        Muncher HUNGY = (x, y, z, u, v) -> vertexConsumer
-                .vertex(x, y, z, red, green, blue, alpha, u, v, overlay, light, transNorm.x, transNorm.y, transNorm.z);
-
-        XYZUV normal = new XYZUV(transNorm.x, transNorm.y, transNorm.z, 0, 0);
-
-        XYZUV a = verticies[0];
-        XYZUV b = verticies[1];
-        XYZUV c = verticies[2];
-        XYZUV d = verticies[3];
+    public static void shell(Muncher HUNGY, XYZUV a, XYZUV b, XYZUV c, XYZUV d, XYZUV normal) {
+        // https://www.desmos.com/3d/efd1f03ccd
 
         XYZUV dba = b.sub(a);
         XYZUV dcd = c.sub(d);
 
-        // https://www.desmos.com/3d/efd1f03ccd
         double dn = 1.0 / n;
         double dm = 1.0 / m;
         for (int i = 0; i < n; ++i) {
@@ -151,18 +150,7 @@ public class Furry implements ModInitializer {
     }
 
     /** makes a spike */
-    public static void spike(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light,
-                             int overlay, float red, float green, float blue, float alpha) {
-
-        Muncher HUNGY = (x, y, z, u, v) -> vertexConsumer
-                .vertex(x, y, z, red, green, blue, alpha, u, v, overlay, light, transNorm.x, transNorm.y, transNorm.z);
-
-        XYZUV a = verticies[0];
-        XYZUV b = verticies[1];
-        XYZUV c = verticies[2];
-        XYZUV d = verticies[3];
-
-        XYZUV normal = new XYZUV(transNorm.x, transNorm.y, transNorm.z, 0, 0);
+    public static void spike(Muncher HUNGY, XYZUV a, XYZUV b, XYZUV c, XYZUV d, XYZUV normal) {
         XYZUV m = mid(a, b, c, d).add(normal.mul(0.25f));
 
         HUNGY.eat(a);
@@ -187,17 +175,7 @@ public class Furry implements ModInitializer {
     }
 
     /** Splits a quad into quadrants and draws shells */
-    public static void dice(XYZUV[] verticies, Vector3f transNorm, VertexConsumer vertexConsumer, int light,
-                            int overlay, float red, float green, float blue, float alpha) {
-
-        Muncher HUNGY = (x, y, z, u, v) -> vertexConsumer
-                .vertex(x, y, z, red, green, blue, alpha, u, v, overlay, light, transNorm.x, transNorm.y, transNorm.z);
-
-        XYZUV vx0 = verticies[0];
-        XYZUV vx1 = verticies[1];
-        XYZUV vx2 = verticies[2];
-        XYZUV vx3 = verticies[3];
-
+    public static void dice(Muncher HUNGY, XYZUV vx0, XYZUV vx1, XYZUV vx2, XYZUV vx3, XYZUV normal) {
         XYZUV mid = mid(vx0, vx1, vx2, vx3);
 
         XYZUV p12 = mid(vx0, vx1);
@@ -205,7 +183,6 @@ public class Furry implements ModInitializer {
         XYZUV p32 = mid(vx2, vx1);
         XYZUV p34 = mid(vx2, vx3);
 
-        XYZUV normal = new XYZUV(transNorm.x, transNorm.y, transNorm.z, 0, 0);
         XYZUVConsumer WUFF = v -> normal.mul(v.distanceTo(mid) * 4 / 3);
 
         XYZUV sx0 = WUFF.gib(vx0);
@@ -216,27 +193,27 @@ public class Furry implements ModInitializer {
         XYZUV s32 = WUFF.gib(p32);
         XYZUV sx2 = WUFF.gib(vx2);
         XYZUV s34 = WUFF.gib(p34);
-        XYZUV sx3 = WUFF.gib(p34);
+        XYZUV sx3 = WUFF.gib(vx3);
 
-        HUNGY.eat(vx0.add(sx0));
-        HUNGY.eat(p12.add(s12));
-        HUNGY.eat(mid.add(szo));
-        HUNGY.eat(p14.add(s14));
+        nom(HUNGY, vx0, sx0);
+        nom(HUNGY, p12, s12);
+        nom(HUNGY, mid, szo);
+        nom(HUNGY, p14, s14);
 
-        HUNGY.eat(vx1.add(sx1));
-        HUNGY.eat(p12.add(s12));
-        HUNGY.eat(mid.add(szo));
-        HUNGY.eat(p32.add(s32));
+        nom(HUNGY, vx1, sx1);
+        nom(HUNGY, p12, s12);
+        nom(HUNGY, mid, szo);
+        nom(HUNGY, p32, s32);
 
-        HUNGY.eat(vx2.add(sx2));
-        HUNGY.eat(p34.add(s34));
-        HUNGY.eat(mid.add(szo));
-        HUNGY.eat(p32.add(s32));
+        nom(HUNGY, vx2, sx2);
+        nom(HUNGY, p34, s34);
+        nom(HUNGY, mid, szo);
+        nom(HUNGY, p32, s32);
 
-        HUNGY.eat(vx3.add(sx3));
-        HUNGY.eat(p34.add(s34));
-        HUNGY.eat(mid.add(szo));
-        HUNGY.eat(p14.add(s14));
+        nom(HUNGY, vx3, sx3);
+        nom(HUNGY, p34, s34);
+        nom(HUNGY, mid, szo);
+        nom(HUNGY, p14, s14);
     }
 
     /** Isolates the *top-right(left) corner of the quad */
