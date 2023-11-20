@@ -9,7 +9,7 @@ import net.minecraft.client.render.VertexConsumer;
 import org.joml.Vector3f;
 
 public class Furry implements ModInitializer {
-    private static final double SQRT_LN_10 = Math.sqrt(Math.log(10));
+    private static final double LN_10 = Math.log(10);
 
     public static int furryState = 0;
 
@@ -101,7 +101,7 @@ public class Furry implements ModInitializer {
 
         XYZUV mid = mid(a, b, c, d);
 
-        double g = SQRT_LN_10 / a.distanceTo(mid);
+        double g = LN_10 / a.sqDistanceTo(mid);
 
         XYZUV dba = b.sub(a);
         XYZUV dcd = c.sub(d);
@@ -136,10 +136,10 @@ public class Furry implements ModInitializer {
                 XYZUV dmv10 = m.sub(v10);
                 XYZUV dmv11 = m.sub(v11);
 
-                double r = m.distanceTo(mid);
+                double r = m.sqDistanceTo(mid);
 
                 for (int k = 0; k < l; ++k) {
-                    double height = (k + 1) * h * Math.exp(-Math.pow(r * g, 2));
+                    double height = (k + 1) * h * Math.exp(-r * g);
                     XYZUV on = normal.mul(height - h);
                     XYZUV op = normal.mul(height + h);
 
@@ -287,6 +287,13 @@ public class Furry implements ModInitializer {
             float dy = v.y - y;
             float dz = v.z - z;
             return Math.sqrt(dx * dx + dy * dy + dz * dz);
+        }
+
+        public double sqDistanceTo(XYZUV v) {
+            float dx = v.x - x;
+            float dy = v.y - y;
+            float dz = v.z - z;
+            return dx * dx + dy * dy + dz * dz;
         }
     }
 
